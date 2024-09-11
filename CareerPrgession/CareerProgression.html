@@ -1,0 +1,794 @@
+<html><head><base href="https://websim.ai/career-progression-game/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Career Progression Explorer 🚀</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0a0a0a;
+            color: #fff;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 20px;
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(255, 255, 255, 0.1) 50px, rgba(255, 255, 255, 0.1) 51px),
+                repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(255, 255, 255, 0.1) 50px, rgba(255, 255, 255, 0.1) 51px);
+            background-size: 100% 100%, 100px 100px, 100px 100px;
+        }
+        .header {
+            background-color: rgba(34, 34, 34, 0.8);
+            padding: 20px;
+            text-align: center;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+        }
+        .header h1 {
+            margin: 0;
+            color: #4CAF50;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        select {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: rgba(51, 51, 51, 0.8);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        select:hover, select:focus {
+            background-color: rgba(76, 175, 80, 0.2);
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+        }
+        select option {
+            background-color: rgba(51, 51, 51, 0.8);
+            color: #fff;
+        }
+        .career-path {
+            background-color: rgba(34, 34, 34, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        .career-path h2 {
+            margin-top: 0;
+            color: #4CAF50;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        .stage {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: rgba(51, 51, 51, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .stage:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.2);
+        }
+        .salary {
+            font-weight: bold;
+            color: #FFC107;
+            text-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .info-item {
+            background-color: rgba(85, 85, 85, 0.8);
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            flex: 1;
+            margin: 0 5px;
+        }
+        .info-item:hover {
+            background-color: rgba(76, 175, 80, 0.8);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        .info-item.active {
+            background-color: rgba(76, 175, 80, 0.8);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        .expandable {
+            background-color: rgba(68, 68, 68, 0.8);
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, box-shadow 0.3s ease;
+            max-height: 0;
+        }
+        .expandable-content {
+            padding: 15px;
+        }
+        .expand-btn {
+            background-color: rgba(85, 85, 85, 0.8);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .expand-btn:hover {
+            background-color: rgba(76, 175, 80, 0.8);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Tech Career Progression Explorer 🚀</h1>
+        </div>
+        <select id="countrySelect">
+            <option value="US">United States</option>
+            <option value="India">India</option>
+            <option value="Australia">Australia</option>
+            <option value="Indonesia">Indonesia</option>
+            <option value="Dubai">Dubai</option>
+            <option value="UK">United Kingdom</option>
+        </select>
+        <select id="careerSelect">
+            <option value="">Select a career path 🔍</option>
+        </select>
+        <div id="careerInfo"></div>
+    </div>
+
+    <script>
+        const careers = [
+            {
+                title: "RPA Developer 🤖",
+                stages: [
+                    { 
+                        name: "Junior RPA Developer", 
+                        salary: 65000, 
+                        emoji: "🌱",
+                        skills: ["Basic programming", "UiPath fundamentals", "Process analysis"],
+                        technologies: ["UiPath Studio", "Excel", "VBA"],
+                        companies: ["Accenture", "Deloitte", "EY"],
+                        openings: ["New York", "San Francisco", "Chicago"]
+                    },
+                    { 
+                        name: "RPA Developer", 
+                        salary: 85000, 
+                        emoji: "💻",
+                        skills: ["Advanced UiPath", "Blue Prism", "SQL", "REFramework"],
+                        technologies: ["UiPath Studio", "Blue Prism", "SQL Server"],
+                        companies: ["KPMG", "IBM", "Capgemini"],
+                        openings: ["Los Angeles", "Denver", "Miami"]
+                    },
+                    { 
+                        name: "Senior RPA Developer", 
+                        salary: 110000, 
+                        emoji: "🔧",
+                        skills: ["RPA solution design", "Automation Anywhere", "Python for RPA", "CI/CD for RPA"],
+                        technologies: ["Automation Anywhere", "Python", "Git"],
+                        companies: ["Infosys", "Wipro", "Cognizant"],
+                        openings: ["Atlanta", "Austin", "Boston"]
+                    },
+                    { 
+                        name: "RPA Architect", 
+                        salary: 135000, 
+                        emoji: "🏗️",
+                        skills: ["Enterprise RPA strategy", "RPA CoE setup", "Advanced exception handling", "RPA governance"],
+                        technologies: ["UiPath Orchestrator", "Azure", "AWS"],
+                        companies: ["EY", "Deloitte", "Accenture"],
+                        openings: ["New York", "Washington D.C.", "San Francisco"]
+                    }
+                ]
+            },
+            {
+                title: "Software Developer 👨‍💻",
+                stages: [
+                    { 
+                        name: "Junior Software Developer", 
+                        salary: 60000, 
+                        emoji: "🐣",
+                        skills: ["Basic programming", "Version control", "Problem solving"],
+                        technologies: ["Git", "HTML", "CSS"],
+                        companies: ["Amazon", "Google", "Facebook"],
+                        openings: ["Seattle", "New York", "Chicago"]
+                    },
+                    { 
+                        name: "Software Developer", 
+                        salary: 80000, 
+                        emoji: "💻",
+                        skills: ["Object-oriented programming", "Database management", "API integration"],
+                        technologies: ["Node.js", "MySQL", ".NET"],
+                        companies: ["Microsoft", "Apple", "Netflix"],
+                        openings: ["San Francisco", "Los Angeles", "Austin"]
+                    },
+                    { 
+                        name: "Senior Software Developer", 
+                        salary: 105000, 
+                        emoji: "🚀",
+                        skills: ["System design", "Mentoring junior developers", "Agile methodologies"],
+                        technologies: ["Java", "Microservices", "Docker"],
+                        companies: ["Google", "IBM", "Oracle"],
+                        openings: ["Boston", "Atlanta", "Chicago"]
+                    },
+                    { 
+                        name: "Software Architect", 
+                        salary: 130000, 
+                        emoji: "🏗️",
+                        skills: ["Architecture patterns", "DevOps", "Cloud computing"],
+                        technologies: ["AWS", "Azure", "Kubernetes"],
+                        companies: ["Facebook", "Amazon", "Twitter"],
+                        openings: ["New York", "San Francisco", "Austin"]
+                    }
+                ]
+            },
+            {
+                title: "UX/UI Designer 🎨",
+                stages: [
+                    { 
+                        name: "Junior UX/UI Designer", 
+                        salary: 55000, 
+                        emoji: "🖌️",
+                        skills: ["User research", "Wireframing", "Prototyping"],
+                        technologies: ["Sketch", "InVision", "Adobe XD"],
+                        companies: ["Airbnb", "Uber", "Pinterest"],
+                        openings: ["Austin", "Los Angeles", "Boston"]
+                    },
+                    { 
+                        name: "UX/UI Designer", 
+                        salary: 75000, 
+                        emoji: "🖼️",
+                        skills: ["Visual design", "User testing", "Collaboration with developers"],
+                        technologies: ["Figma", "Zeplin", "HTML/CSS"],
+                        companies: ["Dropbox", "Shopify", "Slack"],
+                        openings: ["San Francisco", "New York", "Seattle"]
+                    },
+                    { 
+                        name: "Senior UX/UI Designer", 
+                        salary: 95000, 
+                        emoji: "🎭",
+                        skills: ["Cross-platform design", "Design thinking", "Mentoring"],
+                        technologies: ["Axure", "Figma", "Adobe Creative Suite"],
+                        companies: ["Adobe", "IBM", "Twitter"],
+                        openings: ["Boston", "Chicago", "Washington D.C."]
+                    },
+                    { 
+                        name: "UX/UI Lead", 
+                        salary: 120000, 
+                        emoji: "👨‍🎨",
+                        skills: ["Team leadership", "Strategic planning", "Stakeholder engagement"],
+                        technologies: ["Balsamiq", "Framer", "Sketch"],
+                        companies: ["Google", "Microsoft", "Facebook"],
+                        openings: ["New York", "Los Angeles", "Austin"]
+                    }
+                ]
+            },
+            {
+                title: "Cyber Security Specialist 🛡️",
+                stages: [
+                    { 
+                        name: "Junior Security Analyst", 
+                        salary: 70000, 
+                        emoji: "🔍",
+                        skills: ["Security monitoring", "Incident response", "Basic network security"],
+                        technologies: ["Wireshark", "Splunk", "Nessus"],
+                        companies: ["Cisco", "FireEye", "Palo Alto Networks"],
+                        openings: ["Chicago", "San Francisco", "Atlanta"]
+                    },
+                    { 
+                        name: "Security Analyst", 
+                        salary: 90000, 
+                        emoji: "🔐",
+                        skills: ["Threat analysis", "Vulnerability assessment", "Security policies"],
+                        technologies: ["SIEM", "Kali Linux", "Burp Suite"],
+                        companies: ["Symantec", "IBM", "CrowdStrike"],
+                        openings: ["New York", "Washington D.C.", "Dallas"]
+                    },
+                    { 
+                        name: "Senior Security Analyst", 
+                        salary: 115000, 
+                        emoji: "🕵️",
+                        skills: ["Security architecture", "Risk management", "Forensic analysis"],
+                        technologies: ["Firewall", "IDS/IPS", "VPN"],
+                        companies: ["McAfee", "Cisco", "Palo Alto Networks"],
+                        openings: ["San Francisco", "Los Angeles", "Miami"]
+                    },
+                    { 
+                        name: "Security Architect", 
+                        salary: 140000, 
+                        emoji: "🏰",
+                        skills: ["Enterprise security strategy", "Security framework development", "Compliance management"],
+                        technologies: ["Azure Security Center", "IAM", "Security Automation"],
+                        companies: ["IBM", "Deloitte", "EY"],
+                        openings: ["New York", "Boston", "Washington D.C."]
+                    }
+                ]
+            },
+            {
+                title: "Business Analyst 📊",
+                stages: [
+                    { 
+                        name: "Junior Business Analyst", 
+                        salary: 60000, 
+                        emoji: "📈",
+                        skills: ["Data gathering", "Basic statistics", "Documentation"],
+                        technologies: ["Excel", "SQL", "Tableau"],
+                        companies: ["McKinsey", "Boston Consulting Group", "Bain & Company"],
+                        openings: ["Chicago", "San Francisco", "Atlanta"]
+                    },
+                    { 
+                        name: "Business Analyst", 
+                        salary: 80000, 
+                        emoji: "💼",
+                        skills: ["Requirements analysis", "Process mapping", "Stakeholder management"],
+                        technologies: ["JIRA", "Confluence", "Power BI"],
+                        companies: ["Deloitte", "Accenture", "Ernst & Young"],
+                        openings: ["New York", "Seattle", "Miami"]
+                    },
+                    { 
+                        name: "Senior Business Analyst", 
+                        salary: 100000, 
+                        emoji: "🧠",
+                        skills: ["Advanced analytics", "Project management", "Strategic planning"],
+                        technologies: ["SQL", "Tableau", "Python"],
+                        companies: ["KPMG", "Boston Consulting Group", "PwC"],
+                        openings: ["Washington D.C.", "Austin", "Los Angeles"]
+                    },
+                    { 
+                        name: "Lead Business Analyst", 
+                        salary: 125000, 
+                        emoji: "👑",
+                        skills: ["Leadership", "Change management", "Business strategy alignment"],
+                        technologies: ["Agile methodologies", "Business Intelligence Tools", "Excel"],
+                        companies: ["Accenture", "McKinsey", "Deloitte"],
+                        openings: ["New York", "San Francisco", "Chicago"]
+                    }
+                ]
+            },
+            {
+                title: "Software Test Engineer 🧪",
+                stages: [
+                    { 
+                        name: "Junior Test Engineer", 
+                        salary: 55000, 
+                        emoji: "🐞",
+                        skills: ["Basic testing principles", "Test case creation", "Bug reporting"],
+                        technologies: ["JUnit", "Selenium", "TestRail"],
+                        companies: ["IBM", "Infosys", "Cognizant"],
+                        openings: ["Austin", "New York", "Chicago"]
+                    },
+                    { 
+                        name: "Test Engineer", 
+                        salary: 75000, 
+                        emoji: "🔬",
+                        skills: ["Test automation", "API testing", "Performance testing"],
+                        technologies: ["Cypress", "Postman", "JIRA"],
+                        companies: ["Capgemini", "Wipro", "TCS"],
+                        openings: ["San Francisco", "Boston", "Atlanta"]
+                    },
+                    { 
+                        name: "Senior Test Engineer", 
+                        salary: 95000, 
+                        emoji: "🧪",
+                        skills: ["Test strategy development", "Mentoring", "Integration testing"],
+                        technologies: ["TestNG", "Jenkins", "Selenium Grid"],
+                        companies: ["Infosys", "IBM", "HCL"],
+                        openings: ["Miami", "Washington D.C.", "Dallas"]
+                    },
+                    { 
+                        name: "Test Architect", 
+                        salary: 120000, 
+                        emoji: "🏗️",
+                        skills: ["Test framework design", "CI/CD integration", "Quality assurance leadership"],
+                        technologies: ["Docker", "Kubernetes", "AWS"],
+                        companies: ["Wipro", "Cognizant", "Accenture"],
+                        openings: ["Chicago", "San Francisco", "New York"]
+                    }
+                ]
+            },
+            {
+                title: "Data Analyst 📈",
+                stages: [
+                    { 
+                        name: "Junior Data Analyst", 
+                        salary: 60000, 
+                        emoji: "🔢",
+                        skills: ["Data cleaning", "Basic analysis", "Reporting"],
+                        technologies: ["Excel", "SQL", "Power BI"],
+                        companies: ["Amazon", "Google", "IBM"],
+                        openings: ["Austin", "Los Angeles", "Chicago"]
+                    },
+                    { 
+                        name: "Data Analyst", 
+                        salary: 80000, 
+                        emoji: "📊",
+                        skills: ["Data visualization", "Statistical analysis", "Database querying"],
+                        technologies: ["Tableau", "Python", "R"],
+                        companies: ["Facebook", "Microsoft", "Netflix"],
+                        openings: ["New York", "San Francisco", "Boston"]
+                    },
+                    { 
+                        name: "Senior Data Analyst", 
+                        salary: 100000, 
+                        emoji: "📈",
+                        skills: ["Predictive modeling", "Advanced analytics", "Business intelligence"],
+                        technologies: ["SQL", "Excel", "Hadoop"],
+                        companies: ["Google", "Amazon", "Apple"],
+                        openings: ["Austin", "Chicago", "Washington D.C."]
+                    },
+                    { 
+                        name: "Lead Data Analyst", 
+                        salary: 125000, 
+                        emoji: "🧠",
+                        skills: ["Team leadership", "Strategic recommendation", "Project management"],
+                        technologies: ["Python", "R", "Tableau"],
+                        companies: ["IBM", "Microsoft", "Facebook"],
+                        openings: ["San Francisco", "New York", "Los Angeles"]
+                    }
+                ]
+            },
+            {
+                title: "Machine Learning Engineer 🤖",
+                stages: [
+                    { 
+                        name: "Junior ML Engineer", 
+                        salary: 75000, 
+                        emoji: "🌱",
+                        skills: ["Basic ML algorithms", "Data preprocessing", "Model evaluation"],
+                        technologies: ["Python", "Scikit-learn", "Pandas"],
+                        companies: ["Google AI", "OpenAI", "NVIDIA"],
+                        openings: ["New York", "Austin", "San Francisco"]
+                    },
+                    { 
+                        name: "ML Engineer", 
+                        salary: 95000, 
+                        emoji: "🤖",
+                        skills: ["Model deployment", "Feature engineering", "Data analysis"],
+                        technologies: ["TensorFlow", "Keras", "AWS"],
+                        companies: ["Google", "Facebook", "Microsoft"],
+                        openings: ["Los Angeles", "Washington D.C.", "Miami"]
+                    },
+                    { 
+                        name: "Senior ML Engineer", 
+                        salary: 120000, 
+                        emoji: "🧠",
+                        skills: ["Model optimization", "Deep learning", "Research and development"],
+                        technologies: ["PyTorch", "Hadoop", "Spark"],
+                        companies: ["IBM Watson", "OpenAI", "DeepMind"],
+                        openings: ["Boston", "New York", "San Francisco"]
+                    },
+                    { 
+                        name: "ML Architect", 
+                        salary: 150000, 
+                        emoji: "🏗️",
+                        skills: ["System design for ML", "Framework selection", "AI strategy"],
+                        technologies: ["Docker", "Kubernetes", "Azure ML"],
+                        companies: ["Google Cloud", "IBM", "NVIDIA"],
+                        openings: ["Chicago", "San Jose", "Austin"]
+                    }
+                ]
+            },
+            {
+                title: "Data Scientist 🧬",
+                stages: [
+                    { 
+                        name: "Junior Data Scientist", 
+                        salary: 80000, 
+                        emoji: "🔬",
+                        skills: ["Data wrangling", "Basic visualization", "Research"],
+                        technologies: ["Python", "Pandas", "Matplotlib"],
+                        companies: ["Amazon", "Facebook", "Google"],
+                        openings: ["New York", "Los Angeles", "Austin"]
+                    },
+                    { 
+                        name: "Data Scientist", 
+                        salary: 100000, 
+                        emoji: "🧬",
+                        skills: ["Advanced modeling", "Big data tools", "Cross-functional collaboration"],
+                        technologies: ["R", "SQL", "Spark"],
+                        companies: ["Netflix", "Microsoft", "IBM"],
+                        openings: ["San Francisco", "Boston", "Chicago"]
+                    },
+                    { 
+                        name: "Senior Data Scientist", 
+                        salary: 125000, 
+                        emoji: "🧠",
+                        skills: ["Deep learning", "Business insights", "Leadership"],
+                        technologies: ["TensorFlow", "PyTorch", "Keras"],
+                        companies: ["OpenAI", "Google", "Facebook"],
+                        openings: ["Austin", "New York", "Washington D.C."]
+                    },
+                    { 
+                        name: "Lead Data Scientist", 
+                        salary: 155000, 
+                        emoji: "👑",
+                        skills: ["Vision setting", "Strategic leadership", "Innovation"],
+                        technologies: ["R", "Python", "MLflow"],
+                        companies: ["Microsoft", "IBM", "Amazon"],
+                        openings: ["San Francisco", "New York", "Chicago"]
+                    }
+                ]
+            },
+            {
+                title: "No-Code/Low-Code Developer 🧩",
+                stages: [
+                    {
+                        name: "Junior No-Code Developer",
+                        salary: 60000,
+                        emoji: "🌱",
+                        skills: ["Visual programming", "Basic logic", "User interface design"],
+                        technologies: ["Bubble", "Airtable", "Zapier"],
+                        companies: ["Webflow", "Adalo", "Betty Blocks"],
+                        openings: ["Austin", "Seattle", "Miami"]
+                    },
+                    {
+                        name: "No-Code Developer",
+                        salary: 80000,
+                        emoji: "💻",
+                        skills: ["Complex workflow design", "Database management", "API integration"],
+                        technologies: ["Outsystems", "Mendix", "Appian"],
+                        companies: ["Unqork", "QuickBase", "Caspio"],
+                        openings: ["Boston", "Atlanta", "Denver"]
+                    },
+                    {
+                        name: "Senior No-Code Developer",
+                        salary: 100000,
+                        emoji: "🚀",
+                        skills: ["Enterprise solution architecture", "Performance optimization", "Team leadership"],
+                        technologies: ["Power Apps", "Salesforce Lightning", "Google App Maker"],
+                        companies: ["ServiceNow", "Pegasystems", "AgilePoint"],
+                        openings: ["San Jose", "Washington D.C.", "Dallas"]
+                    },
+                    {
+                        name: "No-Code/Low-Code Architect",
+                        salary: 130000,
+                        emoji: "🏗️",
+                        skills: ["Enterprise strategy", "Platform selection", "Governance"],
+                        technologies: ["Nintex", "K2", "Creatio"],
+                        companies: ["Microsoft", "Salesforce", "Oracle"],
+                        openings: ["New York", "San Francisco", "Chicago"]
+                    }
+                ]
+            },
+            {
+                title: "Power Platform Developer ⚡",
+                stages: [
+                    {
+                        name: "Junior Power Platform Developer",
+                        salary: 65000,
+                        emoji: "🌱",
+                        skills: ["Power Apps basics", "Power Automate flows", "SharePoint integration"],
+                        technologies: ["Power Apps", "Power Automate", "SharePoint"],
+                        companies: ["Microsoft Partners", "Accenture", "Avanade"],
+                        openings: ["Seattle", "Atlanta", "Chicago"]
+                    },
+                    {
+                        name: "Power Platform Developer",
+                        salary: 85000,
+                        emoji: "💻",
+                        skills: ["Custom connectors", "Power BI development", "Advanced Power Apps"],
+                        technologies: ["Power BI", "Azure", "Dataverse"],
+                        companies: ["Microsoft", "IBM", "Hitachi Solutions"],
+                        openings: ["New York", "Los Angeles", "Dallas"]
+                    },
+                    {
+                        name: "Senior Power Platform Developer",
+                        salary: 110000,
+                        emoji: "🚀",
+                        skills: ["Solution architecture", "AI Builder", "Power Virtual Agents"],
+                        technologies: ["AI Builder", "Power Virtual Agents", "Azure Logic Apps"],
+                        companies: ["Capgemini", "Infosys", "TCS"],
+                        openings: ["San Francisco", "Boston", "Washington D.C."]
+                    },
+                    {
+                        name: "Power Platform Architect",
+                        salary: 140000,
+                        emoji: "🏗️",
+                        skills: ["Enterprise integration", "Governance", "Center of Excellence setup"],
+                        technologies: ["Azure AD", "Power Platform CoE", "Azure DevOps"],
+                        companies: ["Microsoft", "Deloitte", "KPMG"],
+                        openings: ["Seattle", "Austin", "Miami"]
+                    }
+                ]
+            },
+            {
+                title: "Product Manager 📊",
+                stages: [
+                    {
+                        name: "Associate Product Manager",
+                        salary: 75000,
+                        emoji: "🌱",
+                        skills: ["User research", "Agile methodologies", "Basic data analysis"],
+                        technologies: ["JIRA", "Trello", "Google Analytics"],
+                        companies: ["Google", "Facebook", "Amazon"],
+                        openings: ["San Francisco", "New York", "Seattle"]
+                    },
+                    {
+                        name: "Product Manager",
+                        salary: 100000,
+                        emoji: "💼",
+                        skills: ["Product strategy", "A/B testing", "Stakeholder management"],
+                        technologies: ["Amplitude", "Mixpanel", "Tableau"],
+                        companies: ["Apple", "Microsoft", "Uber"],
+                        openings: ["Los Angeles", "Chicago", "Austin"]
+                    },
+                    {
+                        name: "Senior Product Manager",
+                        salary: 130000,
+                        emoji: "🚀",
+                        skills: ["Product vision", "Cross-functional leadership", "Go-to-market strategy"],
+                        technologies: ["Pendo", "Optimizely", "Looker"],
+                        companies: ["Airbnb", "LinkedIn", "Salesforce"],
+                        openings: ["Boston", "Seattle", "San Jose"]
+                    },
+                    {
+                        name: "Director of Product",
+                        salary: 160000,
+                        emoji: "👑",
+                        skills: ["Product portfolio management", "Executive communication", "P&L responsibility"],
+                        technologies: ["Aha!", "Productboard", "Datadog"],
+                        companies: ["Netflix", "Twitter", "Adobe"],
+                        openings: ["New York", "San Francisco", "Atlanta"]
+                    }
+                ]
+            }
+        ];
+
+        const countrySalaryMultipliers = {
+            US: 1,
+            India: 0.3,
+            Australia: 1.1,
+            Indonesia: 0.4,
+            Dubai: 1.2,
+            UK: 0.9
+        };
+
+        const countryOpenings = {
+            US: ["New York", "San Francisco", "Chicago", "Los Angeles", "Boston"],
+            India: ["Bangalore", "Mumbai", "Delhi", "Hyderabad", "Pune"],
+            Australia: ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"],
+            Indonesia: ["Jakarta", "Surabaya", "Bandung", "Medan", "Semarang"],
+            Dubai: ["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Ras Al Khaimah"],
+            UK: ["London", "Manchester", "Birmingham", "Edinburgh", "Glasgow"]
+        };
+
+        const careerSelect = document.getElementById('careerSelect');
+        const countrySelect = document.getElementById('countrySelect');
+        const careerInfo = document.getElementById('careerInfo');
+
+        careers.forEach(career => {
+            const option = document.createElement('option');
+            option.value = career.title;
+            option.textContent = career.title;
+            careerSelect.appendChild(option);
+        });
+
+        function updateSalaries(country) {
+            const multiplier = countrySalaryMultipliers[country];
+            careers.forEach(career => {
+                career.stages.forEach(stage => {
+                    stage.adjustedSalary = Math.round(stage.salary * multiplier);
+                });
+            });
+        }
+
+        function createCareerPath(career) {
+            let html = `<div class="career-path">
+                <h2>${career.title}</h2>`;
+
+            career.stages.forEach((stage, index) => {
+                html += `
+                    <div class="stage">
+                        <h3>${stage.emoji} ${stage.name}</h3>
+                        <p class="salary">Median Salary: ${getLocalCurrency(countrySelect.value)}${stage.adjustedSalary.toLocaleString()}</p>
+                        <div class="info-row">
+                            <span class="info-item" onclick="toggleExpand(this, 'skills-${index}')">🎯 Skills</span>
+                            <span class="info-item" onclick="toggleExpand(this, 'technologies-${index}')">🛠️ Technologies</span>
+                            <span class="info-item" onclick="toggleExpand(this, 'companies-${index}')">🏢 Companies</span>
+                            <span class="info-item" onclick="toggleExpand(this, 'openings-${index}')">📍 Openings</span>
+                        </div>
+                        <div class="expandable skills-${index}">
+                            <div class="expandable-content">
+                                <ul>
+                                    ${stage.skills.map(skill => `<li>${skill}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="expandable technologies-${index}">
+                            <div class="expandable-content">
+                                <ul>
+                                    ${stage.technologies.map(tech => `<li>${tech}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="expandable companies-${index}">
+                            <div class="expandable-content">
+                                <ul>
+                                    ${stage.companies.map(company => `<li>${company}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="expandable openings-${index}">
+                            <div class="expandable-content">
+                                <ul>
+                                    ${countryOpenings[countrySelect.value].map(opening => `<li>${opening}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+
+            html += `</div>`;
+
+            return html;
+        }
+
+        function getLocalCurrency(country) {
+            const currencies = {
+                US: '$',
+                India: '₹',
+                Australia: 'A$',
+                Indonesia: 'Rp',
+                Dubai: 'AED',
+                UK: '£'
+            };
+            return currencies[country] || '$';
+        }
+
+        function toggleExpand(element, targetClass) {
+            const target = document.querySelector('.' + targetClass);
+            if (target.style.maxHeight) {
+                target.style.maxHeight = null;
+                target.style.boxShadow = 'none';
+                element.classList.remove('active');
+            } else {
+                target.style.maxHeight = target.scrollHeight + "px";
+                target.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.3)';
+                element.classList.add('active');
+            }
+        }
+
+        countrySelect.addEventListener('change', (e) => {
+            updateSalaries(e.target.value);
+            const selectedCareer = careers.find(career => career.title === careerSelect.value);
+            if (selectedCareer) {
+                careerInfo.innerHTML = createCareerPath(selectedCareer);
+            }
+        });
+
+        careerSelect.addEventListener('change', (e) => {
+            const selectedCareer = careers.find(career => career.title === e.target.value);
+            if (selectedCareer) {
+                careerInfo.innerHTML = createCareerPath(selectedCareer);
+            } else {
+                careerInfo.innerHTML = '';
+            }
+        });
+
+        // Initial salary update
+        updateSalaries('US');
+    </script>
+</body>
+</html>
