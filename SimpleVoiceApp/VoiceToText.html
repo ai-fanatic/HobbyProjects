@@ -1,0 +1,427 @@
+<html>
+  <head>
+    <base
+      href="https://raw.githubusercontent.com/open-source-repos/speech-to-text-webapp/main/"
+    />
+    <title>Speech to Text Transcriber</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #121212;
+        color: #e0e0e0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-image: linear-gradient(
+            rgba(255, 255, 255, 0.05) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 20px 20px;
+        flex-direction: column;
+      }
+      h1 {
+        margin-top: 2rem;
+        text-align: center;
+      }
+      .container {
+        background-color: rgba(30, 30, 30, 0.8);
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 800px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #transcription {
+        width: 100%;
+        height: 200px;
+        margin: 1rem 0;
+        padding: 0.5rem;
+        background-color: #2a2a2a;
+        color: #e0e0e0;
+        border: 1px solid #444;
+        border-radius: 5px;
+        resize: vertical;
+        font-size: 18px; /* Increased font size */
+        line-height: 1.5; /* Improved readability */
+      }
+      #interimResult {
+        color: #888;
+        font-style: italic;
+        margin: 0.5rem 0;
+      }
+      .button-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 1rem;
+      }
+      .button {
+        background-color: #2a2a2a;
+        border: none;
+        color: #e0e0e0;
+        padding: 12px 24px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        min-width: 120px;
+      }
+      .button:hover {
+        background-color: #3a3a3a;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .button:active {
+        transform: translateY(0);
+        box-shadow: none;
+      }
+      .button i {
+        margin-right: 8px;
+      }
+      .button-primary {
+        background-color: #4caf50;
+      }
+      .button-primary:hover {
+        background-color: #45a049;
+      }
+      .button:disabled {
+        background-color: #555;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+      #timerContainer {
+        background-color: #2a2a2a;
+        padding: 10px;
+        border-radius: 5px;
+        display: none;
+        margin-bottom: 1rem;
+      }
+      #timer {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      #micIcon {
+        font-size: 8rem; /* Increased size */
+        cursor: pointer;
+        transition: color 0.3s ease;
+        padding: 20px;
+        background-color: #2a2a2a;
+        border-radius: 50%;
+        margin: 2rem 0; /* Added margin for spacing */
+      }
+      #languageSelect {
+        margin-bottom: 1rem;
+        padding: 5px;
+        background-color: #2a2a2a;
+        color: #e0e0e0;
+        border: 1px solid #444;
+        border-radius: 5px;
+      }
+      #micIcon:hover {
+        color: #4caf50;
+      }
+      #micIcon.recording {
+        color: #ff4444;
+        animation: pulse 1s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Speech to Text Transcriber</h1>
+    <div class="container">
+      <div id="timerContainer">
+        <div id="timer">00:00</div>
+      </div>
+      <i id="micIcon" class="fas fa-microphone"></i>
+      <select id="languageSelect">
+        <option value="en-US">English</option>
+        <option value="te-IN">Telugu</option>
+        <option value="hi-IN">Hindi</option>
+      </select>
+      <textarea
+        id="transcription"
+        placeholder="Your transcription will appear here..."
+      ></textarea>
+      <div id="interimResult"></div>
+      <div class="button-container">
+        <button id="copyBtn" class="button">
+          <i class="fas fa-copy"></i>Copy
+        </button>
+        <button id="clearBtn" class="button">
+          <i class="fas fa-eraser"></i>Clear
+        </button>
+        <button id="saveBtn" class="button">
+          <i class="fas fa-save"></i>Save TXT
+        </button>
+        <button id="downloadMp3Btn" class="button button-primary">
+          <i class="fas fa-download"></i>Download Audio
+        </button>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.6.2/RecordRTC.min.js"></script>
+    <script>
+      let recognition;
+      let audioStream;
+      let startTime;
+      let timerInterval;
+      let isRecording = false;
+      const micIcon = document.getElementById("micIcon");
+      const transcription = document.getElementById("transcription");
+      const copyBtn = document.getElementById("copyBtn");
+      const clearBtn = document.getElementById("clearBtn");
+      const saveBtn = document.getElementById("saveBtn");
+      const languageSelect = document.getElementById("languageSelect");
+      const timer = document.getElementById("timer");
+      const downloadMp3Btn = document.getElementById("downloadMp3Btn");
+
+      let mediaRecorder;
+      let audioChunks = [];
+
+      if ("webkitSpeechRecognition" in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event) => {
+          let interimTranscript = "";
+          let finalTranscript = "";
+
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+
+          if (finalTranscript) {
+            transcription.value += finalTranscript;
+          }
+
+          const interimElement = document.getElementById("interimResult");
+          if (interimElement) {
+            interimElement.textContent = interimTranscript;
+          }
+        };
+
+        recognition.onend = () => {
+          const interimElement = document.getElementById("interimResult");
+          if (interimElement) {
+            interimElement.textContent = "";
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.error("Speech recognition error", event.error);
+        };
+      } else {
+        console.log("Web Speech API is not supported in this browser.");
+        micIcon.style.display = "none";
+      }
+
+      function addPunctuation(text) {
+        let sentences = text.split(/(?<=[.!?])\s+/);
+
+        sentences = sentences.map((sentence) => {
+          sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+          if (!sentence.match(/[.!?]$/)) {
+            sentence += ".";
+          }
+          if (
+            sentence.match(/\b(who|what|when|where|why|how)\b/i) &&
+            !sentence.endsWith("?")
+          ) {
+            sentence = sentence.replace(/\.$/, "?");
+          }
+          if (
+            sentence.match(/\b(wow|amazing|great|excellent)\b/i) &&
+            !sentence.endsWith("!")
+          ) {
+            sentence = sentence.replace(/\.$/, "!");
+          }
+          sentence = sentence.replace(/(\w+)\s+(?=(and|or|but))/gi, "$1, ");
+          return sentence;
+        });
+
+        return sentences.join(" ");
+      }
+
+      function processTranscription() {
+        transcription.value = addPunctuation(transcription.value);
+      }
+
+      micIcon.addEventListener("click", () => {
+        if (isRecording) {
+          stopRecording();
+        } else {
+          startRecording();
+        }
+      });
+
+      copyBtn.addEventListener("click", () => {
+        transcription.select();
+        document.execCommand("copy");
+      });
+
+      clearBtn.addEventListener("click", () => {
+        transcription.value = "";
+      });
+
+      saveBtn.addEventListener("click", () => {
+        const text = transcription.value;
+        const blob = new Blob([text], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "transcription.txt";
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      languageSelect.addEventListener("change", () => {
+        if (recognition) {
+          recognition.lang = languageSelect.value;
+        }
+      });
+
+      downloadMp3Btn.addEventListener("click", () => {
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
+          mediaRecorder.stop();
+        }
+      });
+
+      function startRecording() {
+        if (recognition) {
+          recognition.lang = languageSelect.value;
+          recognition.start();
+        }
+
+        navigator.mediaDevices
+          .getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+              sampleRate: 44100,
+              channelCount: 1,
+            },
+          })
+          .then((stream) => {
+            audioStream = stream;
+            mediaRecorder = new MediaRecorder(stream, {
+              mimeType: "audio/webm;codecs=opus",
+              audioBitsPerSecond: 128000,
+            });
+
+            mediaRecorder.ondataavailable = (event) => {
+              audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+              const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+              audioChunks = [];
+              downloadMp3Btn.onclick = () => downloadAudio(audioBlob);
+            };
+
+            mediaRecorder.start();
+
+            startTime = Date.now();
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+
+            isRecording = true;
+            micIcon.classList.add("recording");
+            downloadMp3Btn.disabled = true;
+            document.getElementById("timerContainer").style.display =
+              "inline-block";
+          })
+          .catch((error) => {
+            console.error("Error accessing microphone:", error);
+          });
+      }
+
+      function stopRecording() {
+        if (recognition) {
+          recognition.stop();
+        }
+
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
+          mediaRecorder.stop();
+        }
+
+        if (audioStream) {
+          audioStream.getTracks().forEach((track) => track.stop());
+        }
+
+        clearInterval(timerInterval);
+        isRecording = false;
+        micIcon.classList.remove("recording");
+        document.getElementById("timerContainer").style.display = "none";
+        downloadMp3Btn.disabled = false;
+
+        processTranscription();
+      }
+
+      function downloadAudio(blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = "recording.webm";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+      }
+
+      function updateTimer() {
+        const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsedTime / 60);
+        const seconds = elapsedTime % 60;
+        timer.textContent = `${minutes.toString().padStart(2, "0")}:${seconds
+          .toString()
+          .padStart(2, "0")}`;
+
+        if (elapsedTime >= 300) {
+          // 5 minutes
+          stopRecording();
+        }
+      }
+    </script>
+  </body>
+</html>

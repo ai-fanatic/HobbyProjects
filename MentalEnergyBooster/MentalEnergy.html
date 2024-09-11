@@ -1,0 +1,836 @@
+<html>
+  <head>
+    <base href="https://mentalenergy.example.com/" />
+    <title>Mental Energy: Drains vs. Boosters</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #1a1a1a;
+        color: #ffffff;
+        margin: 0;
+        padding: 0;
+        background-image: linear-gradient(
+            rgba(255, 255, 255, 0.05) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        text-align: center;
+        color: #4caf50;
+      }
+      .user-input {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      .user-input label {
+        margin-right: 10px;
+      }
+      .user-input input {
+        width: 60px;
+        padding: 5px;
+        background-color: #333;
+        color: #fff;
+        border: 1px solid #4caf50;
+      }
+      .user-input button {
+        padding: 5px 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .user-input button:hover {
+        background-color: #45a049;
+      }
+      .table-container {
+        display: flex;
+        justify-content: space-between;
+      }
+      table {
+        width: 48%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 20px;
+        background-color: rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      th {
+        background-color: #4caf50;
+        color: white;
+      }
+      tr:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      .energy-drain {
+        color: #ff6b6b;
+      }
+      .energy-boost {
+        color: #4ecdc4;
+      }
+      .clickable {
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .clickable:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      .clickable td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .expand-emoji {
+        font-size: 1.2em;
+      }
+      .expanded-content {
+        display: none;
+        padding: 10px;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .expanded-content h4 {
+        margin-top: 0;
+        color: #4caf50;
+      }
+      .expanded-content p {
+        margin-bottom: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Mental Energy: Drains vs. Boosters</h1>
+      <div class="user-input">
+        <label for="pointCount">Number of points to display:</label>
+        <input type="number" id="pointCount" min="1" max="50" value="50" />
+        <button id="updatePoints">Update</button>
+      </div>
+      <div class="table-container">
+        <table class="energy-drain">
+          <thead>
+            <tr>
+              <th id="drainTitle">Top 50 Mental Energy Drains</th>
+            </tr>
+          </thead>
+          <tbody id="drainList"></tbody>
+        </table>
+        <table class="energy-boost">
+          <thead>
+            <tr>
+              <th id="boostTitle">Top 50 Mental Energy Boosters</th>
+            </tr>
+          </thead>
+          <tbody id="boostList"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      const mentalEnergyData = {
+        drains: [
+          {
+            item: "Chronic stress",
+            example:
+              "Constantly worrying about work deadlines, financial issues, or personal problems.",
+            tips: "Practice stress management techniques like deep breathing, meditation, or yoga. Break large tasks into smaller, manageable steps.",
+          },
+          {
+            item: "Lack of sleep",
+            example:
+              "Regularly getting less than 7 hours of sleep per night due to work or lifestyle choices.",
+            tips: "Establish a consistent sleep schedule, create a relaxing bedtime routine, and avoid screens before bed.",
+          },
+          {
+            item: "Procrastination",
+            example:
+              "Putting off important tasks until the last minute, causing unnecessary stress and anxiety.",
+            tips: "Use the Pomodoro Technique, break tasks into smaller chunks, and reward yourself for completing tasks.",
+          },
+          {
+            item: "Negative self-talk",
+            example:
+              "Constantly criticizing yourself or focusing on your shortcomings.",
+            tips: "Practice self-compassion, challenge negative thoughts, and keep a gratitude journal.",
+          },
+          {
+            item: "Excessive social media use",
+            example:
+              "Spending hours scrolling through social media feeds, comparing yourself to others.",
+            tips: "Set time limits for social media use, unfollow accounts that make you feel negative, and engage in real-life social interactions.",
+          },
+          {
+            item: "Cluttered environment",
+            example: "Working or living in a messy, disorganized space.",
+            tips: "Dedicate time to declutter, implement organizational systems, and maintain a clean environment daily.",
+          },
+          {
+            item: "Poor diet",
+            example:
+              "Relying on processed foods, sugary snacks, and excessive caffeine.",
+            tips: "Incorporate more whole foods, fruits, and vegetables into your diet. Stay hydrated and limit caffeine intake.",
+          },
+          {
+            item: "Perfectionism",
+            example:
+              "Obsessing over every detail and being unable to complete tasks due to unrealistic standards.",
+            tips: "Set realistic goals, practice self-compassion, and focus on progress rather than perfection.",
+          },
+          {
+            item: "Overcommitting",
+            example:
+              "Saying yes to every request or invitation, leaving no time for self-care.",
+            tips: "Learn to say no, prioritize commitments, and schedule time for rest and relaxation.",
+          },
+          {
+            item: "Lack of boundaries",
+            example:
+              "Allowing others to constantly interrupt your work or personal time.",
+            tips: "Communicate your boundaries clearly, use 'do not disturb' settings on devices, and create dedicated work/personal time.",
+          },
+          {
+            item: "Multitasking",
+            example:
+              "Trying to juggle multiple tasks simultaneously, like answering emails while on a phone call.",
+            tips: "Focus on one task at a time, use time-blocking techniques, and minimize distractions.",
+          },
+          {
+            item: "Excessive worry",
+            example:
+              "Constantly fretting about potential future problems that may never occur.",
+            tips: "Practice mindfulness, focus on the present moment, and use cognitive-behavioral techniques to challenge worrying thoughts.",
+          },
+          {
+            item: "Toxic relationships",
+            example:
+              "Maintaining friendships or romantic relationships that are consistently negative or draining.",
+            tips: "Evaluate your relationships, set boundaries with toxic individuals, and seek support from positive influences.",
+          },
+          {
+            item: "Lack of physical activity",
+            example:
+              "Spending most of the day sitting, with little to no exercise.",
+            tips: "Incorporate regular movement breaks, try standing desks, and aim for at least 30 minutes of moderate exercise daily.",
+          },
+          {
+            item: "Information overload",
+            example:
+              "Constantly consuming news, emails, and social media updates without filter.",
+            tips: "Set specific times for information consumption, use news aggregators, and practice digital detoxes.",
+          },
+          {
+            item: "Unresolved conflicts",
+            example: "Avoiding difficult conversations or harboring grudges.",
+            tips: "Address conflicts directly, practice active listening, and seek mediation if necessary.",
+          },
+          {
+            item: "Lack of purpose",
+            example:
+              "Feeling directionless or unsure about life goals and values.",
+            tips: "Reflect on personal values, set meaningful goals, and engage in activities aligned with your purpose.",
+          },
+          {
+            item: "Financial stress",
+            example:
+              "Constantly worrying about bills, debt, or financial instability.",
+            tips: "Create a budget, seek financial advice, and focus on long-term financial planning.",
+          },
+          {
+            item: "Comparison to others",
+            example:
+              "Constantly measuring your success against others' achievements.",
+            tips: "Focus on personal growth, practice gratitude for your own progress, and limit exposure to triggering content.",
+          },
+          {
+            item: "Neglecting self-care",
+            example:
+              "Prioritizing work or others' needs over your own well-being.",
+            tips: "Schedule regular self-care activities, learn to say no, and prioritize your physical and mental health.",
+          },
+          {
+            item: "Lack of sunlight",
+            example:
+              "Spending most time indoors without exposure to natural light.",
+            tips: "Take regular outdoor breaks, consider light therapy lamps, and optimize indoor lighting.",
+          },
+          {
+            item: "Chronic pain",
+            example:
+              "Dealing with ongoing physical discomfort that affects daily life.",
+            tips: "Seek medical advice, explore pain management techniques, and consider alternative therapies like acupuncture.",
+          },
+          {
+            item: "Excessive alcohol consumption",
+            example:
+              "Regularly drinking more than the recommended amount of alcohol.",
+            tips: "Set limits on alcohol intake, find alternative stress-relief methods, and seek support if needed.",
+          },
+          {
+            item: "Lack of creative outlets",
+            example:
+              "Not having opportunities to express creativity or engage in hobbies.",
+            tips: "Schedule time for creative activities, try new hobbies, and join groups or classes related to your interests.",
+          },
+          {
+            item: "Unstructured time",
+            example:
+              "Having large blocks of unplanned time leading to aimlessness or procrastination.",
+            tips: "Create daily schedules, use time-blocking techniques, and set small, achievable goals for free time.",
+          },
+          {
+            item: "Excessive screen time",
+            example:
+              "Spending most waking hours looking at screens (computer, phone, TV).",
+            tips: "Implement screen-free times, use blue light filters, and engage in non-screen activities regularly.",
+          },
+          {
+            item: "Ignoring emotional needs",
+            example:
+              "Suppressing or avoiding emotions rather than addressing them.",
+            tips: "Practice emotional awareness, journaling, and consider talking to a therapist or counselor.",
+          },
+          {
+            item: "Perfectionism in decision-making",
+            example:
+              "Overthinking every decision, big or small, out of fear of making mistakes.",
+            tips: "Set time limits for decisions, practice acceptance of imperfection, and focus on learning from outcomes.",
+          },
+          {
+            item: "Lack of nature exposure",
+            example:
+              "Living in urban environments with little access to green spaces or natural settings.",
+            tips: "Seek out local parks, plan nature outings, and bring plants into your living space.",
+          },
+          {
+            item: "Unresolved trauma",
+            example:
+              "Carrying the weight of past traumatic experiences without proper processing or support.",
+            tips: "Seek professional help, practice trauma-informed self-care, and consider support groups.",
+          },
+          {
+            item: "Excessive guilt",
+            example:
+              "Constantly feeling guilty about past actions or perceived shortcomings.",
+            tips: "Practice self-forgiveness, challenge irrational guilt, and focus on present actions and choices.",
+          },
+          {
+            item: "Lack of personal growth",
+            example:
+              "Feeling stagnant in personal or professional life without opportunities for development.",
+            tips: "Set learning goals, take on new challenges, and seek mentorship or educational opportunities.",
+          },
+          {
+            item: "Poor time management",
+            example:
+              "Consistently running late, missing deadlines, or feeling rushed.",
+            tips: "Use time management tools, prioritize tasks, and build in buffer time for unexpected events.",
+          },
+          {
+            item: "Negative work environment",
+            example:
+              "Working in a toxic workplace with poor communication or high stress levels.",
+            tips: "Address issues with management, seek support from colleagues, or consider job changes if necessary.",
+          },
+          {
+            item: "Lack of social connection",
+            example:
+              "Feeling isolated or disconnected from friends, family, or community.",
+            tips: "Schedule regular social interactions, join clubs or groups, and nurture existing relationships.",
+          },
+          {
+            item: "Overreliance on caffeine",
+            example:
+              "Depending on multiple cups of coffee or energy drinks to get through the day.",
+            tips: "Gradually reduce caffeine intake, improve sleep habits, and find natural energy boosters like exercise.",
+          },
+          {
+            item: "Neglecting physical health",
+            example:
+              "Ignoring regular check-ups, dental care, or ongoing health issues.",
+            tips: "Schedule regular health check-ups, address health concerns promptly, and prioritize preventive care.",
+          },
+          {
+            item: "Rumination",
+            example: "Repeatedly dwelling on negative thoughts or past events.",
+            tips: "Practice mindfulness, engage in distracting activities, and challenge repetitive thoughts.",
+          },
+          {
+            item: "Lack of personal space",
+            example:
+              "Living or working in crowded conditions without opportunities for privacy.",
+            tips: "Create designated personal areas, use noise-canceling headphones, and communicate needs for alone time.",
+          },
+          {
+            item: "Excessive competitiveness",
+            example:
+              "Constantly trying to outperform others, even in non-competitive situations.",
+            tips: "Focus on personal improvement, celebrate others' successes, and redefine success beyond competition.",
+          },
+          {
+            item: "Poor posture",
+            example:
+              "Maintaining slouched or hunched positions for extended periods.",
+            tips: "Use ergonomic furniture, practice posture exercises, and take regular stretching breaks.",
+          },
+          {
+            item: "Lack of routine",
+            example:
+              "Living without consistent daily patterns, leading to chaos and unpredictability.",
+            tips: "Establish morning and evening routines, create weekly schedules, and stick to consistent meal and sleep times.",
+          },
+          {
+            item: "Unaddressed health anxieties",
+            example:
+              "Constantly worrying about potential illnesses or health issues.",
+            tips: "Seek professional medical advice, limit health-related internet searches, and practice relaxation techniques.",
+          },
+          {
+            item: "Overexposure to negative news",
+            example:
+              "Constantly consuming distressing news stories or world events.",
+            tips: "Limit news consumption, choose reputable sources, and balance negative news with positive stories.",
+          },
+          {
+            item: "Lack of mindfulness",
+            example:
+              "Going through daily life on autopilot without awareness or presence.",
+            tips: "Practice daily mindfulness exercises, engage in mindful eating, and take moments to pause and breathe throughout the day.",
+          },
+          {
+            item: "Imposter syndrome",
+            example:
+              "Feeling like a fraud despite competence and achievements.",
+            tips: "Acknowledge accomplishments, reframe self-doubt, and share feelings with trusted individuals.",
+          },
+          {
+            item: "Lack of work-life balance",
+            example:
+              "Allowing work to consistently encroach on personal time and relationships.",
+            tips: "Set clear boundaries between work and personal life, practice leaving work at work, and prioritize personal time.",
+          },
+          {
+            item: "Excessive planning",
+            example:
+              "Over-planning every aspect of life, leaving no room for spontaneity or flexibility.",
+            tips: "Allow for unstructured time, practice going with the flow, and be open to unexpected opportunities.",
+          },
+          {
+            item: "Digital clutter",
+            example:
+              "Having an overwhelming number of emails, files, or digital notifications.",
+            tips: "Regularly declutter digital spaces, unsubscribe from unnecessary emails, and organize digital files.",
+          },
+          {
+            item: "Excessive multitasking",
+            example:
+              "Constantly switching between tasks without completing any, leading to scattered focus and reduced productivity.",
+            tips: "Focus on one task at a time, use time-blocking techniques, and minimize distractions to improve concentration and efficiency.",
+          },
+        ],
+        boosters: [
+          {
+            item: "Regular exercise",
+            example:
+              "Going for a 30-minute jog three times a week or attending a yoga class regularly.",
+            tips: "Start small and gradually increase intensity. Find activities you enjoy to make exercise a sustainable habit.",
+          },
+          {
+            item: "Adequate sleep",
+            example:
+              "Consistently getting 7-9 hours of quality sleep each night.",
+            tips: "Create a sleep-conducive environment, stick to a regular sleep schedule, and avoid caffeine in the evening.",
+          },
+          {
+            item: "Meditation practice",
+            example:
+              "Spending 10-15 minutes daily in mindful meditation or guided relaxation.",
+            tips: "Start with short sessions, use apps for guidance, and be patient with your progress.",
+          },
+          {
+            item: "Healthy diet",
+            example:
+              "Eating a balanced diet rich in fruits, vegetables, whole grains, and lean proteins.",
+            tips: "Meal prep to ensure healthy options are available, stay hydrated, and limit processed foods.",
+          },
+          {
+            item: "Social connections",
+            example:
+              "Regular catch-ups with friends, family dinners, or participating in community events.",
+            tips: "Schedule regular social time, join clubs or groups aligned with your interests, and nurture existing relationships.",
+          },
+          {
+            item: "Nature exposure",
+            example:
+              "Taking a walk in a park, gardening, or spending weekends hiking.",
+            tips: "Incorporate nature into daily routines, plan outdoor activities, and bring plants into your living space.",
+          },
+          {
+            item: "Continuous learning",
+            example:
+              "Taking online courses, reading books, or learning a new skill.",
+            tips: "Set learning goals, dedicate time for study, and apply new knowledge practically.",
+          },
+          {
+            item: "Gratitude practice",
+            example: "Writing down three things you're grateful for each day.",
+            tips: "Keep a gratitude journal, share appreciation with others, and reflect on positive experiences regularly.",
+          },
+          {
+            item: "Creative expression",
+            example:
+              "Engaging in art, music, writing, or other creative hobbies.",
+            tips: "Schedule regular time for creative activities, try new forms of expression, and don't focus on perfection.",
+          },
+          {
+            item: "Mindfulness",
+            example:
+              "Practicing present-moment awareness in daily activities like eating or walking.",
+            tips: "Start with short mindful moments, use mindfulness apps, and gradually increase practice duration.",
+          },
+          {
+            item: "Goal setting",
+            example:
+              "Setting and working towards specific, achievable personal or professional goals.",
+            tips: "Use SMART goal criteria, break large goals into smaller steps, and celebrate progress along the way.",
+          },
+          {
+            item: "Positive self-talk",
+            example: "Using encouraging and supportive internal dialogue.",
+            tips: "Challenge negative thoughts, practice affirmations, and focus on your strengths and achievements.",
+          },
+          {
+            item: "Regular breaks",
+            example:
+              "Taking short breaks every hour during work or study sessions.",
+            tips: "Use the Pomodoro Technique, stretch or move during breaks, and step away from screens.",
+          },
+          {
+            item: "Volunteering",
+            example:
+              "Dedicating time to help at local charities or community organizations.",
+            tips: "Choose causes you're passionate about, start with small commitments, and reflect on the impact of your contribution.",
+          },
+          {
+            item: "Decluttering",
+            example:
+              "Regularly organizing and simplifying your living and working spaces.",
+            tips: "Tackle one area at a time, donate unused items, and implement organizational systems.",
+          },
+          {
+            item: "Hydration",
+            example: "Consistently drinking adequate water throughout the day.",
+            tips: "Keep a water bottle handy, set reminders, and infuse water with fruits for variety.",
+          },
+          {
+            item: "Laughter and humor",
+            example:
+              "Watching comedies, sharing jokes with friends, or attending comedy shows.",
+            tips: "Seek out humorous content daily, practice laughing at yourself, and surround yourself with positive people.",
+          },
+          {
+            item: "Deep breathing exercises",
+            example:
+              "Practicing diaphragmatic breathing or other breathwork techniques.",
+            tips: "Set reminders for breathing exercises, try different techniques, and incorporate into stressful moments.",
+          },
+          {
+            item: "Journaling",
+            example:
+              "Writing down thoughts, feelings, and experiences regularly.",
+            tips: "Choose a consistent time for journaling, experiment with prompts, and review entries periodically.",
+          },
+          {
+            item: "Time in nature",
+            example:
+              "Regular outdoor activities like hiking, gardening, or simply sitting in a park.",
+            tips: "Plan outdoor time into your schedule, explore local nature spots, and bring elements of nature indoors.",
+          },
+          {
+            item: "Healthy boundaries",
+            example:
+              "Setting and maintaining clear personal and professional limits.",
+            tips: "Practice saying no, communicate boundaries clearly, and regularly reassess and adjust as needed.",
+          },
+          {
+            item: "Positive relationships",
+            example:
+              "Nurturing connections with supportive, encouraging people.",
+            tips: "Invest time in quality relationships, communicate openly, and distance yourself from toxic interactions.",
+          },
+          {
+            item: "Personal development",
+            example:
+              "Attending workshops, reading self-help books, or working with a coach.",
+            tips: "Set personal growth goals, seek feedback from others, and reflect on your progress regularly.",
+          },
+          {
+            item: "Mindful eating",
+            example:
+              "Paying full attention to the experience of eating and drinking.",
+            tips: "Eat without distractions, chew slowly, and savor the flavors and textures of your food.",
+          },
+          {
+            item: "Regular massages",
+            example:
+              "Getting professional massages or practicing self-massage techniques.",
+            tips: "Schedule regular massage appointments, learn self-massage techniques, and use tools like foam rollers.",
+          },
+          {
+            item: "Listening to music",
+            example:
+              "Enjoying favorite songs or exploring new genres of music.",
+            tips: "Create mood-based playlists, try active listening exercises, and explore music's impact on your emotions.",
+          },
+          {
+            item: "Practicing forgiveness",
+            example:
+              "Letting go of grudges and resentments towards others or yourself.",
+            tips: "Reflect on the benefits of forgiveness, practice empathy, and seek professional help if needed.",
+          },
+          {
+            item: "Sunlight exposure",
+            example:
+              "Spending time outdoors during daylight hours, especially in the morning.",
+            tips: "Take morning walks, work near windows, and consider light therapy during darker months.",
+          },
+          {
+            item: "Engaging hobbies",
+            example:
+              "Regularly participating in activities you enjoy purely for pleasure.",
+            tips: "Schedule time for hobbies, try new activities, and connect with others who share your interests.",
+          },
+          {
+            item: "Acts of kindness",
+            example: "Performing regular, small acts of kindness for others.",
+            tips: "Look for daily opportunities to help others, practice random acts of kindness, and reflect on the impact.",
+          },
+          {
+            item: "Digital detox",
+            example:
+              "Taking regular breaks from electronic devices and social media.",
+            tips: "Set designated screen-free times, use apps to limit usage, and find offline alternatives for entertainment.",
+          },
+          {
+            item: "Aromatherapy",
+            example:
+              "Using essential oils or scented candles for relaxation and mood enhancement.",
+            tips: "Experiment with different scents, incorporate into daily routines, and learn about the properties of various oils.",
+          },
+          {
+            item: "Regular stretching",
+            example:
+              "Incorporating stretching routines into daily life, especially if sedentary.",
+            tips: "Set reminders to stretch regularly, learn proper techniques, and combine with deep breathing.",
+          },
+          {
+            item: "Practicing optimism",
+            example:
+              "Consciously focusing on positive outcomes and opportunities.",
+            tips: "Challenge negative thoughts, look for silver linings, and surround yourself with positive influences.",
+          },
+          {
+            item: "Spiritual practices",
+            example:
+              "Engaging in prayer, attending religious services, or exploring spiritual philosophies.",
+            tips: "Explore different spiritual practices, join a community, and integrate spirituality into daily life.",
+          },
+          {
+            item: "Cold exposure",
+            example:
+              "Taking cold showers or participating in cold water immersion.",
+            tips: "Start with short durations, gradually increase exposure, and focus on controlled breathing.",
+          },
+          {
+            item: "Celebrating small wins",
+            example:
+              "Acknowledging and appreciating daily accomplishments, no matter how small.",
+            tips: "Keep a 'wins' journal, share successes with others, and use small wins as motivation for larger goals.",
+          },
+          {
+            item: "Power naps",
+            example:
+              "Taking short (15-20 minute) naps to refresh and recharge.",
+            tips: "Find an ideal nap duration for you, create a comfortable nap environment, and stick to a consistent nap schedule.",
+          },
+          {
+            item: "Cognitive challenges",
+            example:
+              "Engaging in puzzles, strategy games, or learning new skills.",
+            tips: "Incorporate brain teasers into daily routines, try new types of puzzles, and challenge yourself regularly.",
+          },
+          {
+            item: "Spending time with pets",
+            example: "Interacting with and caring for pets or animals.",
+            tips: "If you have pets, dedicate quality time daily. If not, consider volunteering at animal shelters.",
+          },
+          {
+            item: "Practicing assertiveness",
+            example:
+              "Expressing thoughts, feelings, and needs clearly and respectfully.",
+            tips: "Practice 'I' statements, role-play difficult conversations, and start with small assertive actions.",
+          },
+          {
+            item: "Regular health check-ups",
+            example: "Attending scheduled medical and dental appointments.",
+            tips: "Keep a health calendar, address concerns promptly, and follow through with preventive care.",
+          },
+          {
+            item: "Engaging in flow activities",
+            example:
+              "Participating in activities that fully absorb your attention and bring joy.",
+            tips: "Identify your flow activities, schedule uninterrupted time for them, and minimize distractions during these times.",
+          },
+          {
+            item: "Practicing good posture",
+            example:
+              "Maintaining proper alignment of the body, especially when sitting or standing for long periods.",
+            tips: "Use ergonomic furniture, set posture reminders, and do regular posture-strengthening exercises.",
+          },
+          {
+            item: "Engaging in play",
+            example:
+              "Participating in activities purely for fun and enjoyment, regardless of age.",
+            tips: "Schedule time for playful activities, try new games or sports, and embrace a playful attitude in daily life.",
+          },
+          {
+            item: "Practicing mindful technology use",
+            example:
+              "Being intentional and aware of how and when you use digital devices.",
+            tips: "Set specific times for checking emails and social media, use apps mindfully, and create tech-free zones in your home.",
+          },
+          {
+            item: "Engaging in deep conversations",
+            example:
+              "Having meaningful discussions about life, values, and ideas with others.",
+            tips: "Seek out intellectually stimulating company, ask open-ended questions, and practice active listening.",
+          },
+          {
+            item: "Practicing financial wellness",
+            example:
+              "Managing finances responsibly and planning for the future.",
+            tips: "Create and stick to a budget, educate yourself on personal finance, and set financial goals.",
+          },
+          {
+            item: "Cultivating a growth mindset",
+            example:
+              "Viewing challenges as opportunities for learning and development.",
+            tips: "Reframe failures as learning experiences, embrace challenges, and focus on effort rather than innate ability.",
+          },
+          {
+            item: "Practicing self-compassion",
+            example:
+              "Treating yourself with kindness and understanding, especially during challenging times or after making mistakes.",
+            tips: "Use positive self-talk, acknowledge your humanity, and treat yourself as you would a good friend.",
+          },
+        ],
+      };
+
+      function createExpandableRow(item, index, type) {
+        const row = document.createElement("tr");
+        row.className = "clickable";
+        row.innerHTML = `
+    <td>
+      <span>${index + 1}. ${item.item}</span>
+      <span class="expand-emoji">➕</span>
+    </td>
+  `;
+
+        const expandedRow = document.createElement("tr");
+        expandedRow.innerHTML = `
+    <td class="expanded-content">
+      <h4>🌟 Real World Example:</h4>
+      <p>${item.example}</p>
+      <h4>💡 Important Tips:</h4>
+      <p>${item.tips}</p>
+    </td>
+  `;
+
+        row.addEventListener("click", () => {
+          const content = expandedRow.querySelector(".expanded-content");
+          const emoji = row.querySelector(".expand-emoji");
+          if (
+            content.style.display === "none" ||
+            content.style.display === ""
+          ) {
+            content.style.display = "block";
+            emoji.textContent = "➖";
+          } else {
+            content.style.display = "none";
+            emoji.textContent = "➕";
+          }
+        });
+
+        return [row, expandedRow];
+      }
+
+      function populateTable(data, elementId) {
+        const tbody = document.getElementById(elementId);
+        data.forEach((item, index) => {
+          const [row, expandedRow] = createExpandableRow(
+            item,
+            index,
+            elementId === "drainList" ? "drain" : "boost"
+          );
+          tbody.appendChild(row);
+          tbody.appendChild(expandedRow);
+        });
+      }
+
+      function updateDisplayedPoints() {
+        const pointCount = parseInt(
+          document.getElementById("pointCount").value
+        );
+        const drainList = document.getElementById("drainList");
+        const boostList = document.getElementById("boostList");
+        const drainTitle = document.getElementById("drainTitle");
+        const boostTitle = document.getElementById("boostTitle");
+
+        // Clear existing table rows
+        drainList.innerHTML = "";
+        boostList.innerHTML = "";
+
+        // Update table titles
+        drainTitle.textContent = `Top ${pointCount} Mental Energy Drains`;
+        boostTitle.textContent = `Top ${pointCount} Mental Energy Boosters`;
+
+        // Repopulate tables with the specified number of items
+        populateTable(
+          mentalEnergyData.drains.slice(0, pointCount),
+          "drainList"
+        );
+        populateTable(
+          mentalEnergyData.boosters.slice(0, pointCount),
+          "boostList"
+        );
+      }
+
+      // Add this event listener after populating the initial tables
+      document
+        .getElementById("updatePoints")
+        .addEventListener("click", updateDisplayedPoints);
+
+      // Update the initial population to use the input value
+      document.addEventListener("DOMContentLoaded", () => {
+        updateDisplayedPoints();
+      });
+
+      populateTable(mentalEnergyData.drains, "drainList");
+      populateTable(mentalEnergyData.boosters, "boostList");
+    </script>
+  </body>
+</html>
